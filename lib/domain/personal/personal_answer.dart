@@ -1,7 +1,27 @@
-/// 개인정보 전용 질문 응답 모델
-/// ❗ 일반 로그 / 통계 / analytics 사용 금지
 class PersonalAnswer {
+  final String questionId;
   final String value;
+  final DateTime answeredAt;
 
-  PersonalAnswer(this.value);
+  const PersonalAnswer({
+    required this.questionId,
+    required this.value,
+    required this.answeredAt,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'questionId': questionId,
+      'value': value,
+      'answeredAt': answeredAt.toIso8601String(),
+    };
+  }
+
+  factory PersonalAnswer.fromJson(Map<String, dynamic> json) {
+    return PersonalAnswer(
+      questionId: json['questionId'] as String,
+      value: json['value'] as String,
+      answeredAt: DateTime.parse(json['answeredAt'] as String),
+    );
+  }
 }

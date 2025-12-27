@@ -1,7 +1,29 @@
-/// ❗ 비개인정보 이벤트
-/// 화면 진입, 버튼 클릭 등만 허용
-class UiEvent {
-  final String name;
 
-  const UiEvent(this.name);
+enum UiEventType {
+  screenView,
+  buttonClick,
+  error,
+}
+
+class UiEvent {
+  final UiEventType type;
+  final String name;
+  final Map<String, dynamic> parameters;
+  final DateTime occurredAt;
+
+  const UiEvent({
+    required this.type,
+    required this.name,
+    required this.parameters,
+    required this.occurredAt,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'type': type.name,
+      'name': name,
+      'parameters': parameters,
+      'occurredAt': occurredAt.toIso8601String(),
+    };
+  }
 }

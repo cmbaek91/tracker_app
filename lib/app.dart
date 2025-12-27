@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'routes.dart';
+import 'theme/app_theme.dart';
 
 class TrackerApp extends StatelessWidget {
   const TrackerApp({super.key});
@@ -7,10 +8,10 @@ class TrackerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'Tracker',
-      initialRoute: AppRoutes.home,
-      routes: AppRoutes.routes,
+      theme: AppTheme.light(),
+      initialRoute: AppRoutes.splash,
+      routes: AppRoutes.map,
     );
   }
 }
