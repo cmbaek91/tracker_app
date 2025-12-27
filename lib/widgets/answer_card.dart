@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 
 class AnswerCard extends StatelessWidget {
-  final String title;
-  final String value;
+  final String label;
   final VoidCallback? onTap;
 
   const AnswerCard({
     super.key,
-    required this.title,
-    required this.value,
+    required this.label,
     this.onTap,
   });
 
@@ -27,19 +25,9 @@ class AnswerCard extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.labelMedium,
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      value,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                  ],
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ),
               if (onTap != null)

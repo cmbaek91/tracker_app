@@ -3,7 +3,7 @@ class PersonalAnswer {
   final String value;
   final DateTime answeredAt;
 
-  const PersonalAnswer({
+  PersonalAnswer({
     required this.questionId,
     required this.value,
     required this.answeredAt,

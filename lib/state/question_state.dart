@@ -1,82 +1,81 @@
 import 'package:flutter/foundation.dart';
 import '../domain/personal/personal_question.dart';
 import '../domain/personal/personal_answer.dart';
-import '../domain/result/analysis_result.dart';
-import '../services/gpt_service.dart';
 import '../error/app_exception.dart';
 
-enum QuestionFlowStatus {
-  idle,
-  answering,
-  submitting,
-  completed,
-  error,
-}
-
 class QuestionState extends ChangeNotifier {
-  final GptService _gptService;
+  final List<PersonalQuestion> _questions;
+  final List<PersonalAnswer> _answers = [];
 
-  QuestionState(this._gptService);
-
-  QuestionFlowStatus _status = QuestionFlowStatus.idle;
-  PersonalQuestion? _currentQuestion;
-  PersonalAnswer? _answer;
-  AnalysisResult? _result;
+  int _currentIndex = 0;
+  bool _isSubmitting = false;
   AppException? _error;
 
-  QuestionFlowStatus get status => _status;
-  PersonalQuestion? get currentQuestion => _currentQuestion;
-  PersonalAnswer? get answer => _answer;
-  AnalysisResult? get result => _result;
+  QuestionState({
+    required List<PersonalQuestion> questions,
+  }) : _questions = questions {
+    if (_questions.isEmpty) {
+      throw AppException('질문 목록은 비어 있을 수 없습니다.');
+    }
+  }
+
+  // getters
+  int get currentIndex => _currentIndex;
+  int get totalCount => _questions.length;
+  bool get isSubmitting => _isSubmitting;
   AppException? get error => _error;
 
-  bool get canAnswer => _status == QuestionFlowStatus.answering;
-  bool get isSubmitting => _status == QuestionFlowStatus.submitting;
-  bool get isCompleted => _status == QuestionFlowStatus.completed;
+  bool get isCompleted => _currentIndex >= _questions.length;
 
-  void start(PersonalQuestion question) {
-    _currentQuestion = question;
-    _answer = null;
-    _result = null;
+  PersonalQuestion? get currentQuestion {
+    if (isCompleted) return null;
+    return _questions[_currentIndex];
+  }
+
+  List<PersonalAnswer> get answers => List.unmodifiable(_answers);
+
+  // actions
+  void submitAnswer(String value) {
+    if (isCompleted) {
+      _error = AppException('이미 모든 질문이 완료되었습니다.');
+      notifyListeners();
+      return;
+    }
+
+    if (value.trim().isEmpty) {
+      _error = AppException('답변은 비어 있을 수 없습니다.');
+      notifyListeners();
+      return;
+    }
+
     _error = null;
-    _status = QuestionFlowStatus.answering;
+    _isSubmitting = true;
     notifyListeners();
-  }
-
-  void updateAnswer(String value) {
-    if (_status != QuestionFlowStatus.answering) return;
-    _answer = PersonalAnswer(value);
-    notifyListeners();
-  }
-
-  Future<void> submit() async {
-    if (_currentQuestion == null || _answer == null) return;
 
     try {
-      _status = QuestionFlowStatus.submitting;
-      _error = null;
-      notifyListeners();
+      final question = _questions[_currentIndex];
 
-      final analysis = await _gptService.analyze(
-        question: _currentQuestion!,
-        answer: _answer!,
+      final answer = PersonalAnswer(
+        questionId: question.id,
+        value: value,
+        answeredAt: DateTime.now(),
       );
 
-      _result = analysis;
-      _status = QuestionFlowStatus.completed;
+      _answers.add(answer);
+      _currentIndex++;
     } catch (e) {
-      _error = AppException.from(e);
-      _status = QuestionFlowStatus.error;
+      _error = AppException(e.toString());
+    } finally {
+      _isSubmitting = false;
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   void reset() {
-    _currentQuestion = null;
-    _answer = null;
-    _result = null;
+    _answers.clear();
+    _currentIndex = 0;
+    _isSubmitting = false;
     _error = null;
-    _status = QuestionFlowStatus.idle;
     notifyListeners();
   }
 }

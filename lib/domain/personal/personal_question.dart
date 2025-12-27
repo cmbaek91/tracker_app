@@ -1,31 +1,23 @@
 class PersonalQuestion {
   final String id;
-  final String title;
-  final String description;
-  final bool requiresTextInput;
+  final String text;
 
   const PersonalQuestion({
     required this.id,
-    required this.title,
-    required this.description,
-    required this.requiresTextInput,
+    required this.text,
   });
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'title': title,
-      'description': description,
-      'requiresTextInput': requiresTextInput,
+      'text': text,
     };
   }
 
   factory PersonalQuestion.fromJson(Map<String, dynamic> json) {
     return PersonalQuestion(
       id: json['id'] as String,
-      title: json['title'] as String,
-      description: json['description'] as String,
-      requiresTextInput: json['requiresTextInput'] as bool,
+      text: json['text'] as String,
     );
   }
 }
