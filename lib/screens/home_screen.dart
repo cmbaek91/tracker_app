@@ -7,7 +7,9 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tracker - Home')),
+      appBar: AppBar(
+        title: const Text('Tracker - Home'),
+      ),
       body: Center(
         child: ElevatedButton(
           onPressed: () {
