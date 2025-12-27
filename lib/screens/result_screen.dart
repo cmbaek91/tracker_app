@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import '../services/gpt_service.dart';
 import '../services/analytics_service.dart';
+import '../domain/personal/personal_answer.dart';
 import '../domain/result/analysis_result.dart';
 import '../widgets/primary_button.dart';
 
 class ResultScreen extends StatefulWidget {
-  final Map<int, String> answers;
+  final List<PersonalAnswer> answers;
 
   const ResultScreen({
     super.key,
@@ -17,8 +18,8 @@ class ResultScreen extends StatefulWidget {
 }
 
 class _ResultScreenState extends State<ResultScreen> {
-  late final GptService _gptService;
-  late final AnalyticsService _analyticsService;
+  final _gptService = GptService();
+  final _analyticsService = AnalyticsService();
 
   AnalysisResult? _result;
   bool _loading = true;
@@ -27,20 +28,22 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   void initState() {
     super.initState();
-    _gptService = GptService();
-    _analyticsService = AnalyticsService();
     _analyze();
   }
 
   Future<void> _analyze() async {
     try {
-      _analyticsService.logAnalysisStarted();
+      _analyticsService.logEvent(
+        name: 'analysis_start',
+      );
 
-      final result = await _gptService.analyze(widget.answers);
+      final result = await _gptService.analyze(
+        questions: const [], // 실제 질문은 이후 연결
+        answers: widget.answers,
+      );
 
       _analyticsService.logEvent(
-        'analysis_completed',
-        params: {'type': result.type},
+        name: 'analysis_completed',
       );
 
       setState(() {
@@ -48,7 +51,6 @@ class _ResultScreenState extends State<ResultScreen> {
         _loading = false;
       });
     } catch (e) {
-      _analyticsService.logEvent('analysis_failed');
       setState(() {
         _error = e.toString();
         _loading = false;
@@ -60,19 +62,14 @@ class _ResultScreenState extends State<ResultScreen> {
   Widget build(BuildContext context) {
     if (_loading) {
       return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
+        body: Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_error != null) {
       return Scaffold(
         body: Center(
-          child: Text(
-            _error!,
-            style: const TextStyle(color: Colors.red),
-          ),
+          child: Text(_error!, style: const TextStyle(color: Colors.red)),
         ),
       );
     }
@@ -90,24 +87,19 @@ class _ResultScreenState extends State<ResultScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              result.type,
+              result.summary,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontSize: 32,
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 24),
-            Text(
-              result.summary,
-              style: const TextStyle(fontSize: 16),
-            ),
             const Spacer(),
             PrimaryButton(
-              label: '홈으로',
+              label: '처음으로',
               onPressed: () {
                 Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/home',
+                  '/',
                   (_) => false,
                 );
               },

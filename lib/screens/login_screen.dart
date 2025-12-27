@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../state/app_state.dart';
-import '../state/auth_state.dart';
 import '../widgets/primary_button.dart';
 import '../utils/validators.dart';
 import '../routes.dart';
@@ -46,9 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     } finally {
       if (mounted) {
-        setState(() {
-          _loading = false;
-        });
+        setState(() => _loading = false);
       }
     }
   }
@@ -62,8 +59,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final AuthState auth = widget.appState.authState;
-
     return Scaffold(
       appBar: AppBar(title: const Text('로그인')),
       body: Padding(
@@ -75,29 +70,22 @@ class _LoginScreenState extends State<LoginScreen> {
               TextFormField(
                 controller: _emailCtrl,
                 decoration: const InputDecoration(labelText: '이메일'),
-                validator: Validators.emailValidator,
+                validator: Validators.email,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _passwordCtrl,
                 decoration: const InputDecoration(labelText: '비밀번호'),
                 obscureText: true,
-                validator: Validators.passwordValidator,
+                validator: Validators.password,
               ),
               const SizedBox(height: 20),
               if (_error != null)
-                Text(
-                  _error!,
-                  style: const TextStyle(color: Colors.red),
-                ),
+                Text(_error!, style: const TextStyle(color: Colors.red)),
               const SizedBox(height: 12),
               PrimaryButton(
                 label: _loading ? '로그인 중...' : '로그인',
-                onPressed: _loading ? null : _login,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                auth.isAuthenticated ? '로그인됨' : '로그인 필요',
+                onPressed: _loading ? null : () => _login(),
               ),
             ],
           ),

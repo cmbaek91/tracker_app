@@ -1,36 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import 'state/app_state.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
-import 'screens/home_screen.dart';
 import 'screens/question_screen.dart';
 import 'screens/result_screen.dart';
+import 'state/app_state.dart';
+import 'domain/personal/personal_answer.dart';
 
 class AppRoutes {
-  static const splash = '/';
-  static const login = '/login';
-  static const home = '/home';
-  static const question = '/question';
-  static const result = '/result';
+  static Route<dynamic> generate(RouteSettings settings) {
+    switch (settings.name) {
+      case '/':
+        final appState = settings.arguments as AppState;
+        return MaterialPageRoute(
+          builder: (_) => SplashScreen(appState: appState),
+        );
 
-  // app.dart 에서 직접 참조하는 고정 entry
-  static final Map<String, WidgetBuilder> map = {
-    splash: (context) {
-      final appState = context.read<AppState>();
-      return SplashScreen(appState: appState);
-    },
-    login: (context) {
-      final appState = context.read<AppState>();
-      return LoginScreen(appState: appState);
-    },
-    home: (_) => const HomeScreen(),
-    question: (_) => const QuestionScreen(),
-    result: (context) {
-      final answers =
-          ModalRoute.of(context)!.settings.arguments as Map<int, String>;
-      return ResultScreen(answers: answers);
-    },
-  };
+      case '/login':
+        final appState = settings.arguments as AppState;
+        return MaterialPageRoute(
+          builder: (_) => LoginScreen(appState: appState),
+        );
+
+      case '/question':
+        return MaterialPageRoute(
+          builder: (_) => const QuestionScreen(),
+        );
+
+      case '/result':
+        final answers = settings.arguments as List<PersonalAnswer>;
+        return MaterialPageRoute(
+          builder: (_) => ResultScreen(answers: answers),
+        );
+
+      default:
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Unknown route')),
+          ),
+        );
+    }
+  }
 }

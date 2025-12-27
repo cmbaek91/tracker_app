@@ -2,39 +2,25 @@ import 'package:flutter/material.dart';
 import '../state/app_state.dart';
 import '../routes.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends StatelessWidget {
   final AppState appState;
 
   const SplashScreen({super.key, required this.appState});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _bootstrap();
-  }
-
-  Future<void> _bootstrap() async {
-    final authState = context.read<AuthState>();
-    if (!mounted) return;
-
-    if (authState.isLoggedIn) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.home);
-    } else {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.login);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final authState = appState.authState;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (authState.isAuthenticated) {
+        Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+      } else {
+        Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+      }
+    });
+
     return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
+      body: Center(child: CircularProgressIndicator()),
     );
   }
 }

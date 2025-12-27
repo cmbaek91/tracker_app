@@ -2,7 +2,13 @@ import 'package:flutter/foundation.dart';
 import '../services/auth_service.dart';
 import '../error/app_exception.dart';
 
-enum AuthStatus { uninitialized, unauthenticated, authenticating, authenticated, error }
+enum AuthStatus {
+  uninitialized,
+  unauthenticated,
+  authenticating,
+  authenticated,
+  error,
+}
 
 class AuthState extends ChangeNotifier {
   final AuthService _authService;
@@ -23,11 +29,13 @@ class AuthState extends ChangeNotifier {
   Future<void> initialize() async {
     try {
       _status = AuthStatus.uninitialized;
+      _error = null;
       notifyListeners();
 
-      final session = await _authService.restoreSession();
-      if (session != null) {
-        _userId = _authService.currentUserId;
+      await _authService.restoreSession();
+
+      if (_authService.isAuthenticated) {
+        _userId = _authService.userId;
         _status = AuthStatus.authenticated;
       } else {
         _status = AuthStatus.unauthenticated;
@@ -39,14 +47,21 @@ class AuthState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> login({required String email, required String password}) async {
+  Future<void> login({
+    required String email,
+    required String password,
+  }) async {
     try {
       _status = AuthStatus.authenticating;
       _error = null;
       notifyListeners();
 
-      final session = await _authService.login(email: email, password: password);
-      _userId = _authService.currentUserId;
+      await _authService.login(
+        email: email,
+        password: password,
+      );
+
+      _userId = _authService.userId;
       _status = AuthStatus.authenticated;
     } catch (e) {
       _error = AppException.from(e);
@@ -59,6 +74,7 @@ class AuthState extends ChangeNotifier {
     try {
       await _authService.logout();
     } catch (_) {}
+
     _userId = null;
     _status = AuthStatus.unauthenticated;
     notifyListeners();
