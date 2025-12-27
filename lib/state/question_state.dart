@@ -11,10 +11,11 @@ class QuestionState extends ChangeNotifier {
   bool _isSubmitting = false;
   AppException? _error;
 
-  QuestionState({required List<PersonalQuestion> questions})
-      : _questions = questions {
+  QuestionState({
+    required List<PersonalQuestion> questions,
+  }) : _questions = questions {
     if (_questions.isEmpty) {
-      throw InvalidStateException('질문 목록은 비어 있을 수 없습니다.');
+      throw AppException.state('질문 목록은 비어 있을 수 없습니다.');
     }
   }
 
@@ -22,6 +23,7 @@ class QuestionState extends ChangeNotifier {
   int get totalCount => _questions.length;
   bool get isSubmitting => _isSubmitting;
   AppException? get error => _error;
+
   bool get isCompleted => _currentIndex >= _questions.length;
 
   PersonalQuestion? get currentQuestion =>
@@ -29,9 +31,15 @@ class QuestionState extends ChangeNotifier {
 
   List<PersonalAnswer> get answers => List.unmodifiable(_answers);
 
-  void submitAnswer(int value) {
+  void submitAnswer(String value) {
     if (isCompleted) {
-      _error = InvalidStateException('이미 완료됨');
+      _error = AppException.state('이미 모든 질문이 완료되었습니다.');
+      notifyListeners();
+      return;
+    }
+
+    if (value.trim().isEmpty) {
+      _error = AppException.validation('답변은 비어 있을 수 없습니다.');
       notifyListeners();
       return;
     }
@@ -49,8 +57,9 @@ class QuestionState extends ChangeNotifier {
         ),
       );
       _currentIndex++;
+      _error = null;
     } catch (e) {
-      _error = UnknownException(e.toString());
+      _error = AppException.unknown(e.toString());
     } finally {
       _isSubmitting = false;
       notifyListeners();

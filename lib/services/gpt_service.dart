@@ -10,15 +10,11 @@ class GptService {
     required List<PersonalAnswer> answers,
   }) async {
     if (answers.isEmpty) {
-      throw AppException.validation(
-        message: '응답 데이터가 비어 있습니다.',
-      );
+      throw AppException.validation('응답 데이터가 비어 있습니다.');
     }
 
     if (questions.isNotEmpty && questions.length != answers.length) {
-      throw AppException.state(
-        message: '질문과 응답 개수가 일치하지 않습니다.',
-      );
+      throw AppException.state('질문과 응답 개수가 일치하지 않습니다.');
     }
 
     try {
@@ -26,7 +22,7 @@ class GptService {
 
       final score = answers.fold<int>(
         0,
-        (prev, a) => prev + a.value, // value: int
+        (prev, a) => prev + int.parse(a.value),
       );
 
       final normalized = score / (answers.length * 5);
@@ -39,13 +35,9 @@ class GptService {
         createdAt: DateTime.now(),
       );
     } on TimeoutException {
-      throw AppException.network(
-        message: '분석 요청 시간이 초과되었습니다.',
-      );
+      throw AppException.network('분석 요청 시간이 초과되었습니다.');
     } catch (e) {
-      throw AppException.unknown(
-        message: e.toString(),
-      );
+      throw AppException.unknown(e.toString());
     }
   }
 }

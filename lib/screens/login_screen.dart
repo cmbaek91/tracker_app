@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
-import '../state/app_state.dart';
-import '../widgets/primary_button.dart';
-import '../utils/validators.dart';
 import '../routes.dart';
-import '../error/error_mapper.dart';
+import '../utils/validators.dart';
 
 class LoginScreen extends StatefulWidget {
-  final AppState appState;
-
-  const LoginScreen({super.key, required this.appState});
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -16,51 +11,23 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailCtrl = TextEditingController();
-  final _passwordCtrl = TextEditingController();
-
   bool _loading = false;
-  String? _error;
 
-  Future<void> _login() async {
+  void _login() {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() {
-      _loading = true;
-      _error = null;
+    setState(() => _loading = true);
+
+    Future.delayed(const Duration(seconds: 1), () {
+      setState(() => _loading = false);
+      Navigator.pushReplacementNamed(context, AppRoutes.question);
     });
-
-    try {
-      await widget.appState.authState.login(
-        email: _emailCtrl.text.trim(),
-        password: _passwordCtrl.text,
-      );
-
-      if (!mounted) return;
-      Navigator.of(context).pushReplacementNamed(AppRoutes.home);
-    } catch (e) {
-      final mapped = ErrorMapper.map(e);
-      setState(() {
-        _error = mapped.message;
-      });
-    } finally {
-      if (mounted) {
-        setState(() => _loading = false);
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _emailCtrl.dispose();
-    _passwordCtrl.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('로그인')),
+      appBar: AppBar(title: const Text('Login')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -68,24 +35,20 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             children: [
               TextFormField(
-                controller: _emailCtrl,
-                decoration: const InputDecoration(labelText: '이메일'),
-                validator: Validators.email,
+                validator: Validators.validateEmail,
+                decoration: const InputDecoration(labelText: 'Email'),
               ),
-              const SizedBox(height: 12),
               TextFormField(
-                controller: _passwordCtrl,
-                decoration: const InputDecoration(labelText: '비밀번호'),
+                validator: Validators.validatePassword,
+                decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,
-                validator: Validators.password,
               ),
               const SizedBox(height: 20),
-              if (_error != null)
-                Text(_error!, style: const TextStyle(color: Colors.red)),
-              const SizedBox(height: 12),
-              PrimaryButton(
-                label: _loading ? '로그인 중...' : '로그인',
-                onPressed: _loading ? null : () => _login(),
+              ElevatedButton(
+                onPressed: _loading ? null : _login,
+                child: _loading
+                    ? const CircularProgressIndicator()
+                    : const Text('Login'),
               ),
             ],
           ),
