@@ -34,9 +34,9 @@ class _ResultScreenState extends State<ResultScreen> {
 
   Future<void> _analyze() async {
     try {
-      _analyticsService.logEvent('analysis_started');
+      _analyticsService.logAnalysisStarted();
 
-      final result = await _gptService.analyzeAnswers(widget.answers);
+      final result = await _gptService.analyze(widget.answers);
 
       _analyticsService.logEvent(
         'analysis_completed',

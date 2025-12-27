@@ -15,7 +15,7 @@ class QuestionState extends ChangeNotifier {
     required List<PersonalQuestion> questions,
   }) : _questions = questions {
     if (_questions.isEmpty) {
-      throw AppException('질문 목록은 비어 있을 수 없습니다.');
+      throw InvalidStateException('질문 목록은 비어 있을 수 없습니다.');
     }
   }
 
@@ -37,13 +37,13 @@ class QuestionState extends ChangeNotifier {
   // actions
   void submitAnswer(String value) {
     if (isCompleted) {
-      _error = AppException('이미 모든 질문이 완료되었습니다.');
+      _error = InvalidStateException('이미 모든 질문이 완료되었습니다.');
       notifyListeners();
       return;
     }
 
     if (value.trim().isEmpty) {
-      _error = AppException('답변은 비어 있을 수 없습니다.');
+      _error = ValidationException('답변은 비어 있을 수 없습니다.');
       notifyListeners();
       return;
     }
@@ -64,7 +64,7 @@ class QuestionState extends ChangeNotifier {
       _answers.add(answer);
       _currentIndex++;
     } catch (e) {
-      _error = AppException(e.toString());
+      _error = UnknownException(e.toString());
     } finally {
       _isSubmitting = false;
       notifyListeners();

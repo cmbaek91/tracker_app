@@ -75,14 +75,14 @@ class _LoginScreenState extends State<LoginScreen> {
               TextFormField(
                 controller: _emailCtrl,
                 decoration: const InputDecoration(labelText: '이메일'),
-                validator: Validators.email,
+                validator: Validators.emailValidator,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _passwordCtrl,
                 decoration: const InputDecoration(labelText: '비밀번호'),
                 obscureText: true,
-                validator: Validators.password,
+                validator: Validators.passwordValidator,
               ),
               const SizedBox(height: 20),
               if (_error != null)
@@ -92,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               const SizedBox(height: 12),
               PrimaryButton(
-                text: _loading ? '로그인 중...' : '로그인',
+                label: _loading ? '로그인 중...' : '로그인',
                 onPressed: _loading ? null : _login,
               ),
               const SizedBox(height: 12),

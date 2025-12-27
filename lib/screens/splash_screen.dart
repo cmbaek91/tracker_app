@@ -19,10 +19,10 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _bootstrap() async {
-    await widget.appState.initialize();
+    final authState = context.read<AuthState>();
     if (!mounted) return;
 
-    if (widget.appState.isAuthenticated) {
+    if (authState.isLoggedIn) {
       Navigator.of(context).pushReplacementNamed(AppRoutes.home);
     } else {
       Navigator.of(context).pushReplacementNamed(AppRoutes.login);

@@ -27,7 +27,7 @@ class AuthState extends ChangeNotifier {
 
       final session = await _authService.restoreSession();
       if (session != null) {
-        _userId = session.userId;
+        _userId = _authService.currentUserId;
         _status = AuthStatus.authenticated;
       } else {
         _status = AuthStatus.unauthenticated;
@@ -46,7 +46,7 @@ class AuthState extends ChangeNotifier {
       notifyListeners();
 
       final session = await _authService.login(email: email, password: password);
-      _userId = session.userId;
+      _userId = _authService.currentUserId;
       _status = AuthStatus.authenticated;
     } catch (e) {
       _error = AppException.from(e);
